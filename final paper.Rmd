@@ -3,58 +3,45 @@ title: "Final Paper"
 author: "Rae Hoffman & Riley Shatz"
 date: "12/11/2022"
 output: pdf_document
----
----
-title: "Fundamentals of Computing and Data Display"
-subtitle: "Term paper template"
-author: "Author"
-date: "`r Sys.Date()`"
-output:
-  pdf_document:
-    toc: yes
-    df_print: kable
 references:
-- id: Wickham2014
-  title: Tidy Data
+- id: zuckerman2012
+  title: Why Is Reddit So Anti-Women? : An Epic Reddit Thread Counts the Ways
   author:
-  - family: Wickham
-    given: Hadley
-  container-title: Journal of Statistical Software
-  volume: 59
-  issue: 10
-  page: 1-23
+  - family: Zuckerman
+    given: Esther
+  publisher: The Atlantic
+  type: article
+  issued:
+    year: 2012
+- id: APA2018
+  title: Harmful masculinity and violence
+  author:
   type: article-journal
-  issued:
-    year: 2014
-- id: Baumer2017
-  title: Modern Data Science with R
-  author:
-  - family: Baumer
-    given: Benjamin S.
-  - family: Kaplan
-    given: Daniel T.
-  - family: Horton
-    given: Nicholas J.
-  type: book
-  publisher: Chapman \& Hall/CRC Press.
-  issued:
-    year: 2017
+  publisher: American Psychological Association
+    year: 2018
+---
 ---
 
 ```{r, include = FALSE}
-library(knitr)
-library(tidyverse)
+library(RedditExtractoR)
+library(tidytext)
+library(tm)
+library(SnowballC)
+library( reshape2 )
+library( ggplot2 )
+library( lattice )
+library( rvest )
+library( tidyverse )
+library( SnowballC )
+library( xml2 )
+library( stringi )
 ```
 
-## Introduction hey riley
+## Introduction 
 
-For this project we wanted to explore how men and women on Reddit discuss the opposite sex. Our initial thoughts/questions going into this were how do the members of these gender specific subreddits view the opposite sex and what type of words do they associate them with? Would women perhaps use phrases describing men’s personalities more, while men use phrases garnered towards women’s physical appearances? Are there more negative or positive words present? 
+For this project we wanted to explore how men and women on Reddit discuss the opposite sex. Our initial thoughts/questions going into this were how do the members of these gender specific subreddits view the opposite sex and what type of words do they associate with them? Would women perhaps use phrases describing men’s personalities more, while men use phrases garnered towards women’s physical appearances? Are there more negative or positive words present? 
 
-Our methods for exploring these potential differences were looking at two subreddits; TwoXChromosomes, which is a female dominated subreddit, and MensRights which is a male dominated subreddit. We started with TwoXChromosomes because we both were already familiar with it and new it covered a range of topics and is popular. Finding a perfect male-dominated subreddit for comparison was difficult in terms of finding an equal in terms of popularity and discussion points. We decided on MensRights because of its popularity and range of topics. While it is sort of an extreme example of men's discussion points, and fairly "meninist", we figured from the viewpoint of people pertaining more towards that view/side of things would see TwoXChromosomes as extreme. So they are both fairly extreme sides of the spectrum, but given their popularity, we figured they were both good examples of men and women's views on Reddit.  
-
-This section outlines the research idea. We can also cite related work here [@Wickham2014; @Baumer2017].
-
-Note that compiled term paper (the PDF) is supposed to be more text-centered than the RMarkdown documents we used in class, i.e. the text sections are more detailed and big or redundant code chunks can be hidden.
+Our methods for exploring these potential differences were looking at two subreddits; TwoXChromosomes, which is a female dominated subreddit, and MensRights which is a male dominated subreddit. We started with TwoXChromosomes because we both were already familiar with it and knew it covered a range of topics and is also popular. Finding a perfect male-dominated subreddit for comparison was difficult in terms of finding an equal in regards to popularity and discussion points. We decided on MensRights because of its popularity and range of topics. While it is sort of an extreme example of men's discussion points, and fairly "meninist", we figured from the viewpoint of people pertaining more towards that view/side of things would see TwoXChromosomes as extreme. So they are both fairly extreme sides of the spectrum, but given their popularity, we figured they were both good examples of men and women's views on Reddit.  
 
 ## Data
 
@@ -65,12 +52,50 @@ This section describes the data sources and the data gathering process.
 ```
 
 ```{r, include = FALSE}
-# Additional code chunks that repeat tasks or do basic things can be hidden
+#same process for MensRights subreddit
+#extracting MensRights posts
+xychrome <- find_thread_urls(keywords =  "women",
+                                       subreddit = "MensRights",
+                                       sort_by = "top",
+                             period = "year")
+head(xychrome$text)
+
+alltext_mr <- xychrome$text
+
+#clean text
+commentCorpus <- Corpus( VectorSource( alltext_mr ) )
+commentCorpus <- commentCorpus %>%
+  tm_map(removePunctuation) %>% 
+  tm_map(removeNumbers) %>% 
+  tm_map(stripWhitespace) %>%
+  tm_map(tolower)%>% 
+  tm_map(removeWords, c(stopwords("SMART"), "women", "men", "male", "female", "woman", "man", "get", "dont","just", "time", "edit","like","also", "people")) 
+
+#tranform to matrix and get word freq
+commentCorpus_mat <-as.matrix(TermDocumentMatrix( commentCorpus ))
+commentCorpus_wordFreq <-sort(rowSums(commentCorpus_mat), decreasing=TRUE)
+
 ```
 
 ## Results
 
 This section presents the main results.
+
+```{r}
+top15 <- commentCorpus_wordFreq[1:15]
+aplot <- as.data.frame( melt( top15 ) )
+aplot$word <- dimnames( aplot )[[1]]
+aplot$word <- factor(aplot$word,
+                      levels=aplot$word[order(aplot$value,
+                                               decreasing=F)])
+fig <- ggplot(aplot, aes(x=word, y=value)) + 
+  geom_bar(stat="identity") + 
+  xlab("Word in Corpus") + 
+  ylab("Count") +
+  coord_flip()
+print(fig)
+```
+
 
 ### Analysis
 
