@@ -72,33 +72,11 @@ This section describes the data sources and the data gathering process.
 
 This section presents the main results.
 
-### Data exploration
-
-The results section may have a data exploration part, but in general the structure here depends on the specific project.
-
-```{r}
-# What happens here depends on the specific project
-```
-
-```{r}
-# What happens here depends on the specific project
-```
-
 ### Analysis
 
-This section presents the main results, such as (for example) stats and graphs that show relationships, model results and/or clustering, PCA, etc.
+Thinking into why we may have gotten the results we did, a big thing that came up was how we saw extreme ends of the spectrum of feelings vs. talk about violence. We think this could largely have to do with how Reddit offers users anonymity. This provides users the opportunity to speak without consequences, which could explain such a frequent number of violent words used against women on the MensRights subreddit. Since men on that subreddit do not have to think about repercussions from the language they use, they have a way to show their extreme views that they might not elsewhere. Another thing is that Redditors are mainly men, and it has been a long standing issue of Reddit being very anti-women. Zuckerman wrote an article in The Atlantic about a subreddit called "Why is Reddit so Anti-Women", which gained significant popularity and had many comments of women sharing their testimony to how they have been harassed on the platform due to being a woman [@Zuckerman2012]. This could definitely contribute to women on Reddit talking mainly about how men make them feel, vs. men on Reddit using anti-woman language, since Reddit has for many years been a place where women are harassed, and TwoXChromosomes gives them an avenue to vent. 
 
-```{r}
-# What happens here depends on the specific project
-```
-
-```{r}
-# What happens here depends on the specific project
-```
-
-```{r}
-# What happens here depends on the specific project
-```
+But what is the relationship between these differences outside of Reddit? To look into this we read an article from APA on harmful masculinity and violence, which discussed how men are socialized from an early age to express their distress and emotions in a violent manor, which then shifts to using violence to exert power over others, power that men are socialized to believe they are automatically entitled to. Whereas women are socialized to talk calmly about their distress and emotions and throughout life be calm and more submissive [@APA2018]. This research shows concepts and dynamics that we are all familiar with, and explains why we would see men speaking violently on Reddit whereas women talked about how men made them feel in a more calm manor. 
 
 ## Discussion
 
