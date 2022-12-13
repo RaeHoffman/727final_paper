@@ -45,6 +45,8 @@ Our methods for exploring these potential differences were looking at two subred
 
 ## Data
 
+To collect our data, we used RedditExtractoR. We first took the top posts from the last year, filtering by the keyword "men" for TwoXChromosomes subreddit. Then we took the text of all the posts and made it an object. We then turned the text into a corpus and cleaned things like punctuation, numbers, stopwords, etc. to then turn the corpus into a documenttermmatrix to faciliate our visualizations. We did the same process as below for the MensRights subreddit, with just the difference of using "women" as the keyword. 
+
 ```{r}
 men.comments.xx <- find_thread_urls(keywords = "men",
   sort_by = "top",
@@ -56,9 +58,9 @@ head(men.comments.xx$text)
 alltext.XX <- men.comments.xx$text
 
 #VectorSource interprets each element as a document & Corpus casts the result as a collection of documents
-commentCorpus <- Corpus( VectorSource(alltext.XX))
+commentCorpus_xx <- Corpus( VectorSource(alltext.XX))
 #We pipe the corpus through several tm_map() methods
-commentCorpus <- commentCorpus %>%
+commentCorpus_xx <- commentCorpus_xx %>%
   tm_map(removePunctuation) %>% ##eliminate punctuation
   tm_map(removeNumbers) %>% #no numbers
   tm_map(stripWhitespace) %>%#white spaces
@@ -66,8 +68,8 @@ commentCorpus <- commentCorpus %>%
   tm_map(removeWords, c(stopwords("SMART"),"women","men","woman", "man", "male","female", "get", "dont", "just", "time", "edit", "like", "also", "don", "ive","lot","didnt","people")) 
 
 #convert the corpus to a matrix to facilitate further analysis
-commentCorpus_mat <-as.matrix(TermDocumentMatrix( commentCorpus ))
-commentCorpus_wordFreq <-sort(rowSums(commentCorpus_mat), decreasing=TRUE)
+commentCorpus_mat_xx <-as.matrix(TermDocumentMatrix( commentCorpus_xx ))
+commentCorpus_wordFreq_xx <-sort(rowSums(commentCorpus_mat_xx), decreasing=TRUE)
 ```
 
 ```{r, include = FALSE}
@@ -82,8 +84,8 @@ head(xychrome$text)
 alltext_mr <- xychrome$text
 
 #clean text
-commentCorpus <- Corpus( VectorSource( alltext_mr ) )
-commentCorpus <- commentCorpus %>%
+commentCorpus_mr <- Corpus( VectorSource( alltext_mr ) )
+commentCorpus_mr <- commentCorpus_mr %>%
   tm_map(removePunctuation) %>% 
   tm_map(removeNumbers) %>% 
   tm_map(stripWhitespace) %>%
@@ -91,8 +93,8 @@ commentCorpus <- commentCorpus %>%
   tm_map(removeWords, c(stopwords("SMART"), "women", "men", "male", "female", "woman", "man", "get", "dont","just", "time", "edit","like","also", "people")) 
 
 #tranform to matrix and get word freq
-commentCorpus_mat <-as.matrix(TermDocumentMatrix( commentCorpus ))
-commentCorpus_wordFreq <-sort(rowSums(commentCorpus_mat), decreasing=TRUE)
+commentCorpus_mat_mr <-as.matrix(TermDocumentMatrix( commentCorpus_mr ))
+commentCorpus_wordFreq_mr <-sort(rowSums(commentCorpus_mat_mr), decreasing=TRUE)
 
 ```
 
@@ -101,7 +103,7 @@ commentCorpus_wordFreq <-sort(rowSums(commentCorpus_mat), decreasing=TRUE)
 
 ```{r}
 #word frequency chart of women's comments about men
-top15 <- commentCorpus_wordFreq[1:15]
+top15 <- commentCorpus_wordFreq_xx[1:15]
 
 aplot <- as.data.frame( melt( top15 ) )
 aplot$word <- dimnames( aplot )[[1]]
@@ -113,20 +115,20 @@ fig <- ggplot(aplot, aes(x=word, y=value)) +
   xlab("Word Frquency in TwoXChromosone") + 
   ylab("Count") +
   coord_flip()
-print(fig)
+print(fig) 
 ```
 
 ```{r}
 #word frequency chart of men's comments about women
-top15 <- commentCorpus_wordFreq[1:15]
+top15 <- commentCorpus_wordFreq_mr[1:15]
 aplot <- as.data.frame( melt( top15 ) )
 aplot$word <- dimnames( aplot )[[1]]
 aplot$word <- factor(aplot$word,
                       levels=aplot$word[order(aplot$value,
                                                decreasing=F)])
 fig <- ggplot(aplot, aes(x=word, y=value)) + 
-  geom_bar(stat="identity") + 
-  xlab("Word in Corpus") + 
+  geom_bar(stat="identity", fill = "") + 
+  xlab("Word Frquency in MenRights") + 
   ylab("Count") +
   coord_flip()
 print(fig)
