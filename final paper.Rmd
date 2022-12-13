@@ -45,10 +45,29 @@ Our methods for exploring these potential differences were looking at two subred
 
 ## Data
 
-This section describes the data sources and the data gathering process.
-
 ```{r}
-# A code chunk that exemplifies the data gathering process
+men.comments.xx <- find_thread_urls(keywords = "men",
+  sort_by = "top",
+  subreddit = "TwoXChromosomes",
+  period = "year")
+
+head(men.comments.xx$text)
+
+alltext.XX <- men.comments.xx$text
+
+#VectorSource interprets each element as a document & Corpus casts the result as a collection of documents
+commentCorpus <- Corpus( VectorSource(alltext.XX))
+#We pipe the corpus through several tm_map() methods
+commentCorpus <- commentCorpus %>%
+  tm_map(removePunctuation) %>% ##eliminate punctuation
+  tm_map(removeNumbers) %>% #no numbers
+  tm_map(stripWhitespace) %>%#white spaces
+  tm_map(tolower)%>% ##make all words lowercase
+  tm_map(removeWords, c(stopwords("SMART"),"women","men","woman", "man", "male","female", "get", "dont", "just", "time", "edit", "like", "also", "don", "ive","lot","didnt","people")) 
+
+#convert the corpus to a matrix to facilitate further analysis
+commentCorpus_mat <-as.matrix(TermDocumentMatrix( commentCorpus ))
+commentCorpus_wordFreq <-sort(rowSums(commentCorpus_mat), decreasing=TRUE)
 ```
 
 ```{r, include = FALSE}
@@ -77,11 +96,28 @@ commentCorpus_wordFreq <-sort(rowSums(commentCorpus_mat), decreasing=TRUE)
 
 ```
 
+
 ## Results
 
-This section presents the main results.
+```{r}
+#word frequency chart of women's comments about men
+top15 <- commentCorpus_wordFreq[1:15]
+
+aplot <- as.data.frame( melt( top15 ) )
+aplot$word <- dimnames( aplot )[[1]]
+aplot$word <- factor(aplot$word,
+                      levels=aplot$word[order(aplot$value,
+                                               decreasing=F)])
+fig <- ggplot(aplot, aes(x=word, y=value)) + 
+  geom_bar(stat="identity",fill = "#e29578") + 
+  xlab("Word Frquency in TwoXChromosone") + 
+  ylab("Count") +
+  coord_flip()
+print(fig)
+```
 
 ```{r}
+#word frequency chart of men's comments about women
 top15 <- commentCorpus_wordFreq[1:15]
 aplot <- as.data.frame( melt( top15 ) )
 aplot$word <- dimnames( aplot )[[1]]
@@ -96,6 +132,8 @@ fig <- ggplot(aplot, aes(x=word, y=value)) +
 print(fig)
 ```
 
+What we were able to find was that in the women's based subreddit, TwoXXChromosome, women were more likely to discuss narratives and anecdotal experience when it came to men. They often used words like "feel",“make,” “told,” “wanted.” In the context of these words, often the women were speaking personal testimony on how men made them feel, their experiences with them, and often these experiences were negative. On the other hand, the men's rights subreddit reported a lot more factual, violent, and almost analytical language like "rape", “crime”, “violence”, “mass”, and “victims”. It seems as though when men talk about women, they are either speaking violently about them or speaking generally about violence towards women. 
+
 
 ### Analysis
 
@@ -105,6 +143,6 @@ But what is the relationship between these differences outside of Reddit? To loo
 
 ## Discussion
 
-This section summarizes the results and may briefly outline advantages and limitations of the work presented.
+In conclusion, we can visually see a difference between men and women and their manner of speaking about each other in gender specific courses. Men and women have a different vocabulary when talking about each other in online circles. It seems like for women, they are telling stories and and experiences, and for men, they speak about current events and often violent occurrences. We believe that this is because Reddit, as an anonymous social media site, makes it easier for each gender to not only congregate based on similar viewpoints, experiences, and opinions, but allows them to share said opinions anonymously. In the analysis section, we were also able to discuss why men and women psychologically speak differently, because of their gender-norm-heavy socialization. 
 
-## References
+In the future, it would be interesting to run a regression analysis to see if we can say with significance that men are more likely to use violent language against the opposite sex in comparison to women. Another helpful thing to study would be topic modeling, and see what topics were being discussed as well as gender. Lastly, we could perform a sentiment analysis to specifically define certain moods to certain words, which would help us analyze the moods that men and women have when speaking about one another. It might also be interesting to look at LGBTQ+ subreddits to see if different sexualities and gender spectrums are potrayed differently. 
